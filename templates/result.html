@@ -1,57 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ytfy – Transfer Complete</title>
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            background: #121212;
-            color: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        h1 {
-            color: #1DB954;
-            margin-bottom: 15px;
-        }
-
-        a {
-            color: #1DB954;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .back-btn {
-            margin-top: 20px;
-            background: #1DB954;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .back-btn:hover {
-            background: #1ed760;
-        }
-    </style>
+    <title>Conversion Success - YTFY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Playlist Created!</h1>
-    <p>Your new Spotify playlist is ready:</p>
-    <p><a href="{{ playlist_link }}" target="_blank">{{ playlist_link }}</a></p>
-
-    <a href="/" class="back-btn">Transfer Another Playlist</a>
+    <div class="container">
+        <h1>Conversion Successful!</h1>
+        <p>Your Spotify playlist is ready:</p>
+        <a href="{{ playlist_url }}" target="_blank" class="spotify-link">Open in Spotify</a>
+        <a href="{{ url_for('index') }}" class="back-link">Convert Another Playlist</a>
+    </div>
 </body>
 </html>

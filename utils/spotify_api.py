@@ -1,69 +1,51 @@
 import os
-import requests
-import base64
-from urllib.parse import urlencode
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from typing import List
 from dotenv import load_dotenv
 
 load_dotenv()
 
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
-SPOTIFY_REDIRECT_URI = "http://127.0.0.1:5000/callback"  # Change for production
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
 
-# Step 1: Get Spotify Auth URL
-def get_spotify_auth_url():
-    scope = "playlist-modify-public playlist-modify-private"
-    params = {
-        "client_id": SPOTIFY_CLIENT_ID,
-        "response_type": "code",
-        "redirect_uri": SPOTIFY_REDIRECT_URI,
-        "scope": scope,
-    }
-    return f"https://accounts.spotify.com/authorize?{urlencode(params)}"
+if not all([SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI]):
+    raise ValueError("Missing Spotify credentials in environment variables")
 
-# Step 2: Exchange code for access token
-def get_spotify_token(code):
-    auth_str = f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}"
-    b64_auth = base64.b64encode(auth_str.encode()).decode()
-    headers = {"Authorization": f"Basic {b64_auth}"}
-    data = {
-        "grant_type": "authorization_code",
-        "code": code,
-        "redirect_uri": SPOTIFY_REDIRECT_URI,
-    }
-
-    response = requests.post("https://accounts.spotify.com/api/token", data=data, headers=headers)
-    response.raise_for_status()
-    return response.json()
-
-# Step 3: Create playlist
-def create_spotify_playlist(songs, token_info):
-    access_token = token_info.get("access_token")
-    headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-
-    # Get current user profile
-    user_resp = requests.get("https://api.spotify.com/v1/me", headers=headers)
-    user_resp.raise_for_status()
-    user_id = user_resp.json()["id"]
+def create_spotify_playlist(song_titles: List[str]) -> str:
+    """Create a Spotify playlist from song titles.
+    
+    Args:
+        song_titles: List of song titles to search and add
+        
+    Returns:
+        str: URL of the created Spotify playlist
+    """
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+        client_id=SPOTIFY_CLIENT_ID,
+        client_secret=SPOTIFY_CLIENT_SECRET,
+        redirect_uri=SPOTIFY_REDIRECT_URI,
+        scope="playlist-modify-public"
+    ))
 
     # Create new playlist
-    payload = {"name": "ytfy Playlist", "description": "Imported from YouTube", "public": False}
-    playlist_resp = requests.post(f"https://api.spotify.com/v1/users/{user_id}/playlists",
-                                  json=payload, headers=headers)
-    playlist_resp.raise_for_status()
-    playlist_id = playlist_resp.json()["id"]
+    user_id = sp.current_user()["id"]
+    playlist = sp.user_playlist_create(
+        user_id, 
+        "YouTube Imported Playlist",
+        public=True,
+        description="Playlist imported from YouTube using YTFY"
+    )
 
     # Search and add tracks
-    track_uris = []
-    for song in songs:
-        query = urlencode({"q": song, "type": "track", "limit": 1})
-        search_resp = requests.get(f"https://api.spotify.com/v1/search?{query}", headers=headers)
-        if search_resp.ok and search_resp.json().get("tracks", {}).get("items"):
-            uri = search_resp.json()["tracks"]["items"][0]["uri"]
-            track_uris.append(uri)
+    track_ids = []
+    for title in song_titles:
+        results = sp.search(q=title, type="track", limit=1)
+        if results["tracks"]["items"]:
+            track_ids.append(results["tracks"]["items"][0]["id"])
 
-    if track_uris:
-        requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks",
-                      json={"uris": track_uris}, headers=headers)
+    if track_ids:
+        sp.playlist_add_items(playlist["id"], track_ids)
 
-    return f"https://open.spotify.com/playlist/{playlist_id}"
+    return playlist["external_urls"]["spotify"]

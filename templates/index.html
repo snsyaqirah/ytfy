@@ -1,99 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ytfy – Transfer YouTube Playlist to Spotify</title>
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            background: #121212;
-            color: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        form {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0 20px;
-            border: none;
-            border-radius: 6px;
-            background: #333;
-            color: white;
-        }
-
-        button {
-            background: #1DB954;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-        }
-
-        button:hover {
-            background: #1ed760;
-        }
-
-        .login-btn {
-            background: #1DB954;
-            text-decoration: none;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-
-        .login-btn:hover {
-            background: #1ed760;
-        }
-
-        footer {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-    </style>
+    <title>YTFY - YouTube to Spotify Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
-    <h1>ytfy</h1>
-    <p>Transfer your YouTube playlist to Spotify — easy, fast, and clean.</p>
-
-    {% if logged_in %}
-        <form action="/transfer" method="POST">
-            <label for="yt_url">Enter YouTube Playlist URL:</label>
-            <input type="text" name="yt_url" id="yt_url" placeholder="https://www.youtube.com/playlist?list=..." required>
-            <button type="submit">Transfer Playlist</button>
+    <div class="container">
+        <h1>Convert YouTube Playlist to Spotify</h1>
+        <form action="{{ url_for('convert') }}" method="POST">
+            <input type="text" name="playlist_url" placeholder="Enter YouTube playlist URL" required>
+            <button type="submit">Convert</button>
         </form>
-    {% else %}
-        <a href="/authorize" class="login-btn">Connect with Spotify</a>
-    {% endif %}
-
-    <footer>
-        Made with Flask & Spotify API
-    </footer>
-
+    </div>
 </body>
 </html>
