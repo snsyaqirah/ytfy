@@ -5,6 +5,7 @@
     --error-color: #FF4444;
     --success-color: #1DB954;
     --gray-color: #B3B3B3;
+    --warning-color: #FFA500;
 }
 
 * {
@@ -62,6 +63,7 @@ input[type="text"] {
     border-radius: 5px;
     background-color: var(--light-color);
     font-size: 1rem;
+    color: var(--dark-color);
 }
 
 button {
@@ -154,9 +156,38 @@ button:hover {
 
 .matched-song {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.song-row {
+    display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.confidence {
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.confidence-high {
+    background-color: var(--success-color);
+    color: var(--dark-color);
+}
+
+.confidence-medium {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.confidence-low, .confidence-very_low {
+    background-color: var(--error-color);
+    color: var(--light-color);
 }
 
 .yt-title {
@@ -167,6 +198,7 @@ button:hover {
 
 .arrow {
     color: var(--primary-color);
+    font-weight: bold;
 }
 
 .spotify-info {
@@ -177,6 +209,13 @@ button:hover {
 
 .unmatched-song {
     color: var(--error-color);
+}
+
+.reason {
+    color: var(--gray-color);
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
 }
 
 .error-message {
@@ -202,13 +241,76 @@ button:hover {
     border-radius: 10px;
 }
 
+.playlist-options {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.radio-option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.radio-option input[type="radio"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.radio-option span {
+    font-weight: 500;
+}
+
+.playlist-input-section {
+    margin: 1rem 0;
+}
+
+select {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+select option {
+    padding: 0.5rem;
+}
+
 @media (max-width: 768px) {
-    .matched-song {
+    .container {
+        padding: 1.5rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .song-row {
         flex-direction: column;
         align-items: flex-start;
     }
     
     .arrow {
         transform: rotate(90deg);
+    }
+
+    .playlist-options {
+        flex-direction: column;
     }
 }

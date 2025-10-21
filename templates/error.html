@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Error - YTFY</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Error</h1>
-        <p class="error-message">{{ error }}</p>
-        <a href="{{ url_for('index') }}" class="back-link">Try Again</a>
-    </div>
-</body>
+    <head>
+        <title>Error - YTfy</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <h1>Error</h1>
+            <p class="error-message">{{ error }}</p>
+            <a href="{{ url_for('index') }}" class="back-link">Try Again</a>
+
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--gray-color); text-align: center;">
+                <p style="color: var(--gray-color); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                    © 2025 Crafted when I was *definitely* supposed to be working 💻 by 
+                    <a href="https://snsyaqirah.github.io/syaqi/" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Syaqi</a>
+                </p>
+                <a href="{{ url_for('privacy') }}" style="color: var(--gray-color); text-decoration: none; font-size: 0.85rem;">Privacy Policy</a>
+            </div>
+        </div>
+    </body>
 </html>

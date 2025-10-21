@@ -1,49 +1,71 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Conversion Success - YTFY</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Conversion Successful!</h1>
-        <h2>{{ playlist_name }}</h2>
-        
-        <div class="stats">
-            <p>Total songs: <strong>{{ total_songs }}</strong></p>
-            <p>Successfully matched: <strong class="success">{{ matched_count }}</strong></p>
-            <p>Not found: <strong class="error">{{ unmatched_count }}</strong></p>
+    <head>
+        <title>Conversion Success - YTfy</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <h1>✅ Conversion Successful!</h1>
+            <h2>{{ playlist_name }}</h2>
+            
+            <div class="stats">
+                <p>Total songs: <strong>{{ total_songs }}</strong></p>
+                <p>Successfully matched: <strong class="success">{{ matched_count }}</strong></p>
+                <p>Not found: <strong class="error">{{ unmatched_count }}</strong></p>
+            </div>
+
+            <a href="{{ playlist_url }}" target="_blank" class="spotify-link">🎧 Open in Spotify</a>
+
+            {% if matched_songs %}
+            <div class="song-list">
+                <h3>✓ Matched Songs ({{ matched_count }})</h3>
+                <ul>
+                    {% for song in matched_songs %}
+                    <li class="matched-song">
+                        <div class="song-row">
+                            <span class="yt-title">{{ song.youtube_title }}</span>
+                            {% if song.match_confidence %}
+                            <span class="confidence confidence-{{ song.match_confidence }}">
+                                {{ song.match_confidence }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="song-row">
+                            <span class="arrow">→</span>
+                            <span class="spotify-info">{{ song.spotify_name }} - {{ song.spotify_artist }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if unmatched_songs %}
+            <div class="song-list unmatched">
+                <h3>✗ Songs Not Found ({{ unmatched_count }})</h3>
+                <ul>
+                    {% for song in unmatched_songs %}
+                    <li class="unmatched-song">
+                        <strong>{{ song.title }}</strong>
+                        {% if song.reason %}
+                        <br><small class="reason">{{ song.reason }}</small>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <a href="{{ url_for('index') }}" class="back-link">Convert Another Playlist</a>
+
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--gray-color); text-align: center;">
+                <p style="color: var(--gray-color); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                    © 2025 Crafted when I was *definitely* supposed to be working 💻 by 
+                    <a href="https://snsyaqirah.github.io/syaqi/" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Syaqi</a>
+                </p>
+                <a href="{{ url_for('privacy') }}" style="color: var(--gray-color); text-decoration: none; font-size: 0.85rem;">Privacy Policy</a>
+            </div>
         </div>
-
-        <a href="{{ playlist_url }}" target="_blank" class="spotify-link">🎧 Open in Spotify</a>
-
-        {% if matched_songs %}
-        <div class="song-list">
-            <h3>✓ Matched Songs ({{ matched_count }})</h3>
-            <ul>
-                {% for song in matched_songs %}
-                <li class="matched-song">
-                    <span class="yt-title">{{ song.youtube_title }}</span>
-                    <span class="arrow">→</span>
-                    <span class="spotify-info">{{ song.spotify_name }} - {{ song.spotify_artist }}</span>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        {% if unmatched_songs %}
-        <div class="song-list unmatched">
-            <h3>✗ Songs Not Found ({{ unmatched_count }})</h3>
-            <ul>
-                {% for song in unmatched_songs %}
-                <li class="unmatched-song">{{ song }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        <a href="{{ url_for('index') }}" class="back-link">Convert Another Playlist</a>
-    </div>
-</body>
+    </body>
 </html>

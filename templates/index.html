@@ -1,18 +1,74 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>YTFY - YouTube to Spotify Converter</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>🎵 Convert YouTube Playlist to Spotify</h1>
-        <form action="{{ url_for('convert') }}" method="POST">
-            <input type="text" name="playlist_url" placeholder="Enter YouTube playlist URL" required>
-            <input type="text" name="playlist_name" placeholder="Custom playlist name (optional)">
-            <button type="submit">Convert to Spotify</button>
-        </form>
-        <p class="info-text">Leave the name blank to use the YouTube playlist title</p>
-    </div>
-</body>
+    <head>
+        <title>YTfy - YouTube to Spotify Converter</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <h1>🎵 Convert YouTube Playlist to Spotify</h1>
+            <form action="{{ url_for('convert') }}" method="POST" id="convertForm">
+                <input type="text" name="playlist_url" placeholder="Enter YouTube playlist URL" required>
+                
+                <div class="playlist-options">
+                    <label class="radio-option">
+                        <input type="radio" name="playlist_option" value="new" checked onchange="togglePlaylistInput()">
+                        <span>Create New Playlist</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="playlist_option" value="existing" onchange="togglePlaylistInput()">
+                        <span>Add to Existing Playlist</span>
+                    </label>
+                </div>
+
+                <div id="newPlaylistInput" class="playlist-input-section">
+                    <input type="text" name="playlist_name" placeholder="Custom playlist name (optional)">
+                    <p class="info-text">Leave blank to use the YouTube playlist title</p>
+                </div>
+
+                <div id="existingPlaylistInput" class="playlist-input-section" style="display: none;">
+                    {% if user_playlists %}
+                    <select name="existing_playlist">
+                        <option value="">Select a playlist...</option>
+                        {% for playlist in user_playlists %}
+                        <option value="{{ playlist.id }}">{{ playlist.name }} ({{ playlist.tracks_total }} tracks)</option>
+                        {% endfor %}
+                    </select>
+                    {% else %}
+                    <p class="info-text">No playlists found. Please create one first or choose "Create New Playlist".</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit">Convert to Spotify</button>
+            </form>
+
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--gray-color); text-align: center;">
+                <p style="color: var(--gray-color); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                    © 2025 Crafted when I was *definitely* supposed to be working 💻 by 
+                    <a href="https://snsyaqirah.github.io/syaqi/" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Syaqi</a>
+                </p>
+                <a href="{{ url_for('privacy') }}" style="color: var(--gray-color); text-decoration: none; font-size: 0.85rem;">Privacy Policy</a>
+            </div>
+        </div>
+
+        <script>
+            function togglePlaylistInput() {
+                const newPlaylistInput = document.getElementById('newPlaylistInput');
+                const existingPlaylistInput = document.getElementById('existingPlaylistInput');
+                const selectedOption = document.querySelector('input[name="playlist_option"]:checked').value;
+                
+                if (selectedOption === 'new') {
+                    newPlaylistInput.style.display = 'block';
+                    existingPlaylistInput.style.display = 'none';
+                    const selectElement = document.querySelector('select[name="existing_playlist"]');
+                    if (selectElement) selectElement.removeAttribute('required');
+                } else {
+                    newPlaylistInput.style.display = 'none';
+                    existingPlaylistInput.style.display = 'block';
+                    const selectElement = document.querySelector('select[name="existing_playlist"]');
+                    if (selectElement) selectElement.setAttribute('required', 'required');
+                }
+            }
+        </script>
+    </body>
 </html>

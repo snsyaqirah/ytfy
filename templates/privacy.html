@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Privacy Policy - YTfy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .privacy-content {
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .privacy-content h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .privacy-content h2 {
+            color: var(--primary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .privacy-content h3 {
+            color: var(--light-color);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .privacy-content ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        .privacy-content li {
+            margin-bottom: 0.5rem;
+        }
+        .privacy-content a {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        .privacy-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .privacy-summary {
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            background-color: rgba(29, 185, 84, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="privacy-content">
+            <h1>Privacy Policy for YTfy</h1>
+            <p><strong>Last Updated:</strong> {{ last_updated }}</p>
+            
+            <h2>Overview</h2>
+            <p>YTfy is a simple web tool that converts YouTube playlists to Spotify playlists. We are committed to protecting your privacy and being transparent about our practices.</p>
+            
+            <h2>What We Don't Do</h2>
+            <ul>
+                <li>❌ We do NOT store your YouTube playlist URLs</li>
+                <li>❌ We do NOT save your Spotify account information</li>
+                <li>❌ We do NOT keep any database of user data</li>
+                <li>❌ We do NOT track your browsing habits</li>
+                <li>❌ We do NOT sell or share your information with third parties</li>
+                <li>❌ We do NOT use cookies for tracking (only session cookies for authentication)</li>
+            </ul>
+            
+            <h2>What We Do</h2>
+            <ul>
+                <li>✅ We temporarily access your YouTube playlist to read song titles (read-only)</li>
+                <li>✅ We temporarily access your Spotify account to create or modify playlists (with your permission)</li>
+                <li>✅ All processing happens in real-time and nothing is stored after conversion</li>
+            </ul>
+            
+            <h2>Third-Party Services</h2>
+            <p>YTfy uses the following services:</p>
+            
+            <h3>YouTube Data API</h3>
+            <ul>
+                <li><strong>Used to:</strong> Read playlist information</li>
+                <li><strong>Data accessed:</strong> Playlist title and song titles</li>
+                <li><strong>Privacy Policy:</strong> <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
+            </ul>
+            
+            <h3>Spotify Web API</h3>
+            <ul>
+                <li><strong>Used to:</strong> Create playlists and add songs to your account</li>
+                <li><strong>Data accessed:</strong> Your Spotify user ID and playlists (with your explicit permission)</li>
+                <li><strong>Privacy Policy:</strong> <a href="https://www.spotify.com/legal/privacy-policy/" target="_blank">Spotify Privacy Policy</a></li>
+            </ul>
+            
+            <h2>Permissions We Request</h2>
+            <h3>Spotify Permissions</h3>
+            <ul>
+                <li><strong>playlist-modify-public:</strong> To create or modify public playlists</li>
+                <li><strong>playlist-modify-private:</strong> To create or modify private playlists</li>
+            </ul>
+            <p>These permissions are ONLY used for playlist conversion and nothing else.</p>
+            
+            <h2>Data Retention</h2>
+            <ul>
+                <li><strong>Session Data:</strong> Temporary session data (like authentication tokens) is stored in your browser session and deleted when you close your browser or log out</li>
+                <li><strong>No Permanent Storage:</strong> We do not maintain any servers or databases that store your information</li>
+            </ul>
+            
+            <h2>Your Rights</h2>
+            <p>You have full control:</p>
+            <ul>
+                <li>Revoke access to YTfy anytime through your <a href="https://www.spotify.com/account/apps/" target="_blank">Spotify Account Settings</a></li>
+                <li>Delete any playlists created by YTfy directly in Spotify</li>
+                <li>Stop using YTfy anytime with no data left behind</li>
+            </ul>
+            
+            <h2>Security</h2>
+            <ul>
+                <li>All connections use HTTPS encryption</li>
+                <li>We follow Spotify and YouTube's security best practices</li>
+                <li>Authentication tokens are handled securely and never logged</li>
+            </ul>
+            
+            <h2>Children's Privacy</h2>
+            <p>YTfy is not intended for children under 13. We do not knowingly collect information from children.</p>
+            
+            <h2>Changes to This Policy</h2>
+            <p>We may update this privacy policy from time to time. Any changes will be posted on this page with an updated "Last Updated" date.</p>
+            
+            <h2>Contact</h2>
+            <p>If you have questions about this privacy policy, please contact: <strong>[snsyaqirah@gmail.com]</strong></p>
+            
+            <div class="privacy-summary">
+                Simple Summary: YTfy is just a converter tool. We read your YouTube playlist, search for songs on Spotify, and add them to your Spotify playlist. We don't save anything. That's it! 
+            </div>
+            
+            <a href="{{ url_for('index') }}" class="back-link">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>
