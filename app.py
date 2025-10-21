@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from utils.youtube_api import get_youtube_songs
+from utils.youtube_api import get_playlist_info
 from utils.spotify_api import get_spotify_client, create_spotify_playlist
 import os
 from dotenv import load_dotenv
@@ -22,20 +22,36 @@ def convert():
         if not sp.auth_manager.get_cached_token():
             if request.method == "POST":
                 session['pending_playlist_url'] = request.form.get("playlist_url")
+                session['pending_playlist_name'] = request.form.get("playlist_name", "")
             return redirect(url_for('spotify_auth'))
 
         if request.method == "GET":
             playlist_url = session.pop('pending_playlist_url', None)
+            custom_name = session.pop('pending_playlist_name', None)
         else:
             playlist_url = request.form.get("playlist_url")
+            custom_name = request.form.get("playlist_name", "")
 
         if not playlist_url:
             return redirect(url_for('index'))
 
-        songs = get_youtube_songs(playlist_url)
-        spotify_url = create_spotify_playlist(songs)
+        # Get YouTube playlist info
+        yt_info = get_playlist_info(playlist_url)
         
-        return render_template("result.html", playlist_url=spotify_url)
+        # Use custom name or YouTube playlist title
+        playlist_name = custom_name if custom_name else yt_info["title"]
+        
+        # Create Spotify playlist
+        result = create_spotify_playlist(playlist_name, yt_info["songs"])
+        
+        return render_template("result.html", 
+                             playlist_url=result['playlist_url'],
+                             playlist_name=result['playlist_name'],
+                             matched_songs=result['matched_songs'],
+                             unmatched_songs=result['unmatched_songs'],
+                             total_songs=result['total_songs'],
+                             matched_count=result['matched_count'],
+                             unmatched_count=result['unmatched_count'])
     
     except Exception as e:
         return render_template("error.html", error=str(e))
@@ -49,7 +65,6 @@ def spotify_auth():
 @app.route('/callback')
 def callback():
     sp = get_spotify_client()
-    # Update to use get_cached_token to address deprecation warning
     token_info = sp.auth_manager.get_cached_token()
     if not token_info:
         token_info = sp.auth_manager.get_access_token(request.args.get('code'), as_dict=False)

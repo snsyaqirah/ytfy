@@ -7,8 +7,42 @@
 <body>
     <div class="container">
         <h1>Conversion Successful!</h1>
-        <p>Your Spotify playlist is ready:</p>
-        <a href="{{ playlist_url }}" target="_blank" class="spotify-link">Open in Spotify</a>
+        <h2>{{ playlist_name }}</h2>
+        
+        <div class="stats">
+            <p>Total songs: <strong>{{ total_songs }}</strong></p>
+            <p>Successfully matched: <strong class="success">{{ matched_count }}</strong></p>
+            <p>Not found: <strong class="error">{{ unmatched_count }}</strong></p>
+        </div>
+
+        <a href="{{ playlist_url }}" target="_blank" class="spotify-link">🎧 Open in Spotify</a>
+
+        {% if matched_songs %}
+        <div class="song-list">
+            <h3>✓ Matched Songs ({{ matched_count }})</h3>
+            <ul>
+                {% for song in matched_songs %}
+                <li class="matched-song">
+                    <span class="yt-title">{{ song.youtube_title }}</span>
+                    <span class="arrow">→</span>
+                    <span class="spotify-info">{{ song.spotify_name }} - {{ song.spotify_artist }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if unmatched_songs %}
+        <div class="song-list unmatched">
+            <h3>✗ Songs Not Found ({{ unmatched_count }})</h3>
+            <ul>
+                {% for song in unmatched_songs %}
+                <li class="unmatched-song">{{ song }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <a href="{{ url_for('index') }}" class="back-link">Convert Another Playlist</a>
     </div>
 </body>

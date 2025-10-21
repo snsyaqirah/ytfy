@@ -6,11 +6,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Convert YouTube Playlist to Spotify</h1>
+        <h1>🎵 Convert YouTube Playlist to Spotify</h1>
         <form action="{{ url_for('convert') }}" method="POST">
             <input type="text" name="playlist_url" placeholder="Enter YouTube playlist URL" required>
-            <button type="submit">Convert</button>
+            <input type="text" name="playlist_name" placeholder="Custom playlist name (optional)">
+            <button type="submit">Convert to Spotify</button>
         </form>
+        <p class="info-text">Leave the name blank to use the YouTube playlist title</p>
     </div>
 </body>
 </html>
