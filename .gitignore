@@ -1,4 +1,9 @@
+# filepath: 
 venv/
-.env
 __pycache__/
 *.pyc
+.env
+.vscode/
+*.log
+.cache
+.spotify_caches/

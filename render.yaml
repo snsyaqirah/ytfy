@@ -2,5 +2,16 @@ services:
   - type: web
     name: ytfy
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r 
     startCommand: gunicorn app:app
+    envVars:
+      - key: FLASK_SECRET_KEY
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false
+      - key: SPOTIFY_REDIRECT_URI
+        sync: false

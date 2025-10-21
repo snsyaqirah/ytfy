@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session
 from utils.youtube_api import get_playlist_info
 from utils.spotify_api import get_spotify_client, create_spotify_playlist, get_user_playlists
 import os
@@ -93,5 +94,6 @@ def privacy():
     return render_template('privacy.html', last_updated=datetime.now().strftime("%B %d, %Y"))
 
 if __name__ == "__main__":
+    # For local development
     port = int(os.getenv("PORT", 5000))
-    app.run(host="127.0.0.1", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
