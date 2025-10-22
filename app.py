@@ -20,31 +20,22 @@ def index():
     user_playlists = get_user_playlists()
     return render_template("index.html", authenticated=True, user_playlists=user_playlists)
 
-@app.route("/convert", methods=["GET", "POST"])
+@app.route("/convert", methods=["POST"])
 def convert():
     try:
+        # Check authentication
         sp = get_spotify_client()
         if not sp.auth_manager.get_cached_token():
-            if request.method == "POST":
-                session['pending_playlist_url'] = request.form.get("playlist_url")
-                session['pending_playlist_name'] = request.form.get("playlist_name", "")
-                session['pending_playlist_option'] = request.form.get("playlist_option", "new")
-                session['pending_existing_playlist'] = request.form.get("existing_playlist", "")
             return redirect(url_for('spotify_auth'))
 
-        if request.method == "GET":
-            playlist_url = session.pop('pending_playlist_url', None)
-            custom_name = session.pop('pending_playlist_name', None)
-            playlist_option = session.pop('pending_playlist_option', 'new')
-            existing_playlist_id = session.pop('pending_existing_playlist', None)
-        else:
-            playlist_url = request.form.get("playlist_url")
-            custom_name = request.form.get("playlist_name", "")
-            playlist_option = request.form.get("playlist_option", "new")
-            existing_playlist_id = request.form.get("existing_playlist", "")
+        # Get form data
+        playlist_url = request.form.get("playlist_url")
+        custom_name = request.form.get("playlist_name", "")
+        playlist_option = request.form.get("playlist_option", "new")
+        existing_playlist_id = request.form.get("existing_playlist", "")
 
         if not playlist_url:
-            return redirect(url_for('index'))
+            raise ValueError("Please provide a YouTube playlist URL")
 
         # Get YouTube playlist info
         yt_info = get_playlist_info(playlist_url)
@@ -77,6 +68,12 @@ def spotify_auth():
     auth_url = sp.auth_manager.get_authorize_url()
     return redirect(auth_url)
 
+@app.route('/logout')
+def logout():
+    """Clear session and logout"""
+    session.clear()
+    return redirect(url_for('index'))
+
 @app.route('/callback')
 def callback():
     sp = get_spotify_client()
@@ -84,9 +81,7 @@ def callback():
     if not token_info:
         token_info = sp.auth_manager.get_access_token(request.args.get('code'), as_dict=False)
     
-    if session.get('pending_playlist_url'):
-        return redirect(url_for('convert'))
-    
+    # Always redirect to index after auth (no pending conversion)
     return redirect(url_for('index'))
 
 @app.route('/privacy')

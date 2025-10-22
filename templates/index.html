@@ -1,55 +1,127 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>YTfy - YouTube to Spotify Converter</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>YTFY - YouTube to Spotify Converter</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            'spotify': '#1DB954',
+                            'dark': '#191414',
+                        }
+                    }
+                }
+            }
+        </script>
     </head>
-    <body>
-        <div class="container">
-            <h1>🎵 Convert YouTube Playlist to Spotify</h1>
-            <form action="{{ url_for('convert') }}" method="POST" id="convertForm">
-                <input type="text" name="playlist_url" placeholder="Enter YouTube playlist URL" required>
-                
-                <div class="playlist-options">
-                    <label class="radio-option">
-                        <input type="radio" name="playlist_option" value="new" checked onchange="togglePlaylistInput()">
-                        <span>Create New Playlist</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="playlist_option" value="existing" onchange="togglePlaylistInput()">
-                        <span>Add to Existing Playlist</span>
-                    </label>
+    <body class="bg-dark min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div class="w-full max-w-md sm:max-w-lg lg:max-w-2xl">
+            <!-- Main Container -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10">
+                <!-- Header -->
+                <div class="text-center mb-6 sm:mb-8">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+                        🎵 YTFY
+                    </h1>
+                    <p class="text-gray-400 text-sm sm:text-base">Convert YouTube/YouTube Music Playlists to Spotify</p>
                 </div>
 
-                <div id="newPlaylistInput" class="playlist-input-section">
-                    <input type="text" name="playlist_name" placeholder="Custom playlist name (optional)">
-                    <p class="info-text">Leave blank to use the YouTube playlist title</p>
+                {% if not authenticated %}
+                <!-- Not Authenticated - Show Login -->
+                <div class="text-center space-y-6">
+                    <div class="bg-spotify/10 border-2 border-spotify/50 rounded-lg p-6">
+                        <p class="text-white mb-4 text-sm sm:text-base">Connect your Spotify account to get started</p>
+                        <a href="{{ url_for('spotify_auth') }}" class="inline-block bg-spotify hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm sm:text-base">
+                            🎧 Connect Spotify
+                        </a>
+                    </div>
+                    <p class="text-gray-400 text-xs sm:text-sm">We'll need access to create/modify playlists on your behalf</p>
+                </div>
+                {% else %}
+                <!-- Authenticated - Show Form -->
+                <div class="mb-4 bg-green-500/10 border border-green-500/50 rounded-lg p-3 flex items-center justify-between">
+                    <span class="text-green-400 text-xs sm:text-sm">✓ Connected to Spotify</span>
+                    <a href="{{ url_for('logout') }}" class="text-gray-400 hover:text-white text-xs">Disconnect</a>
                 </div>
 
-                <div id="existingPlaylistInput" class="playlist-input-section" style="display: none;">
-                    {% if user_playlists %}
-                    <select name="existing_playlist">
-                        <option value="">Select a playlist...</option>
-                        {% for playlist in user_playlists %}
-                        <option value="{{ playlist.id }}">{{ playlist.name }} ({{ playlist.tracks_total }} tracks)</option>
-                        {% endfor %}
-                    </select>
-                    {% else %}
-                    <p class="info-text">No playlists found. Please create one first or choose "Create New Playlist".</p>
-                    {% endif %}
+                <!-- Form -->
+                <form action="{{ url_for('convert') }}" method="POST" id="convertForm" class="space-y-4 sm:space-y-6">
+                    <!-- YouTube URL Input -->
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">YouTube/YouTube Music Playlist URL</label>
+                        <input 
+                            type="text" 
+                            name="playlist_url" 
+                            placeholder="https://www.youtube.com/playlist?list=..." 
+                            required
+                            class="w-full px-4 py-3 rounded-lg bg-white text-dark placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-spotify transition text-sm sm:text-base">
+                    </div>
+
+                    <!-- Playlist Options -->
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-3">Choose Option</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition">
+                                <input type="radio" name="playlist_option" value="new" checked onchange="togglePlaylistInput()" class="w-4 h-4 text-spotify focus:ring-spotify">
+                                <span class="ml-3 text-white text-sm sm:text-base">Create New Playlist</span>
+                            </label>
+                            <label class="flex items-center p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition">
+                                <input type="radio" name="playlist_option" value="existing" onchange="togglePlaylistInput()" class="w-4 h-4 text-spotify focus:ring-spotify">
+                                <span class="ml-3 text-white text-sm sm:text-base">Add to Existing Playlist</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- New Playlist Input -->
+                    <div id="newPlaylistInput" class="space-y-2">
+                        <label class="block text-white text-sm font-medium">Playlist Name (Optional)</label>
+                        <input 
+                            type="text" 
+                            name="playlist_name" 
+                            placeholder="Leave blank to use YouTube title"
+                            class="w-full px-4 py-3 rounded-lg bg-white text-dark placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-spotify transition text-sm sm:text-base">
+                        <p class="text-gray-400 text-xs sm:text-sm">Leave blank to use the YouTube playlist title</p>
+                    </div>
+
+                    <!-- Existing Playlist Select -->
+                    <div id="existingPlaylistInput" class="space-y-2" style="display: none;">
+                        {% if user_playlists %}
+                        <label class="block text-white text-sm font-medium">Select Playlist</label>
+                        <select 
+                            name="existing_playlist"
+                            class="w-full px-4 py-3 rounded-lg bg-white text-dark focus:outline-none focus:ring-2 focus:ring-spotify transition text-sm sm:text-base">
+                            <option value="">Select a playlist...</option>
+                            {% for playlist in user_playlists %}
+                            <option value="{{ playlist.id }}">{{ playlist.name }} ({{ playlist.tracks_total }} tracks)</option>
+                            {% endfor %}
+                        </select>
+                        {% else %}
+                        <p class="text-gray-400 text-xs sm:text-sm">No playlists found. Please create one first or choose "Create New Playlist".</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit"
+                        class="w-full bg-spotify hover:bg-green-500 text-white font-bold py-3 sm:py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm sm:text-base">
+                        🎧 Convert to Spotify
+                    </button>
+                </form>
+                {% endif %}
+
+                <!-- Footer -->
+                <div class="mt-6 sm:mt-8 pt-6 border-t border-gray-700 text-center space-y-2">
+                    <p class="text-gray-400 text-xs sm:text-sm">
+                        © 2025 Crafted when I was *definitely* supposed to be working 💻 by 
+                        <a href="https://snsyaqirah.github.io/syaqi/" target="_blank" class="text-spotify hover:text-green-400 transition font-medium">Syaqi</a>
+                    </p>
+                    <a href="{{ url_for('privacy') }}" class="inline-block text-gray-400 hover:text-white transition text-xs sm:text-sm">Privacy Policy</a>
                 </div>
-
-                <button type="submit">Convert to Spotify</button>
-            </form>
-
-            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--gray-color); text-align: center;">
-                <p style="color: var(--gray-color); font-size: 0.85rem; margin-bottom: 0.5rem;">
-                    © 2025 Crafted when I was *definitely* supposed to be working 💻 by 
-                    <a href="https://snsyaqirah.github.io/syaqi/" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Syaqi</a>
-                </p>
-                <a href="{{ url_for('privacy') }}" style="color: var(--gray-color); text-decoration: none; font-size: 0.85rem;">Privacy Policy</a>
             </div>
-        </div>
 
         <script>
             function togglePlaylistInput() {
