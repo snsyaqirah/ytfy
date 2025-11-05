@@ -54,6 +54,69 @@ def get_user_playlists():
     
     return playlists
 
+def get_spotify_playlist_tracks(playlist_url: str) -> Dict:
+    """Extract tracks from a Spotify playlist URL"""
+    sp = get_spotify_client()
+    
+    if not sp.auth_manager.get_cached_token():
+        raise Exception("No Spotify token available")
+    
+    # Extract playlist ID from URL
+    playlist_id = extract_spotify_playlist_id(playlist_url)
+    if not playlist_id:
+        raise ValueError("Invalid Spotify playlist URL")
+    
+    # Get playlist details
+    playlist = sp.playlist(playlist_id)
+    playlist_name = playlist['name']
+    
+    # Get all tracks
+    songs = []
+    results = playlist['tracks']
+    
+    while results:
+        for item in results['items']:
+            if item['track'] and item['track']['name']:  # Skip null tracks
+                track = item['track']
+                artists = ', '.join([artist['name'] for artist in track['artists']])
+                
+                songs.append({
+                    'track_name': track['name'],
+                    'artist': artists,
+                    'album': track['album']['name'],
+                    'spotify_url': track['external_urls']['spotify']
+                })
+        
+        # Get next page
+        if results['next']:
+            results = sp.next(results)
+        else:
+            results = None
+    
+    return {
+        'playlist_name': playlist_name,
+        'playlist_id': playlist_id,
+        'total_tracks': len(songs),
+        'songs': songs
+    }
+
+def extract_spotify_playlist_id(url: str) -> Optional[str]:
+    """Extract playlist ID from Spotify URL"""
+    import re
+    
+    # Handle different Spotify URL formats
+    patterns = [
+        r'playlist/([a-zA-Z0-9]+)',  # https://open.spotify.com/playlist/ID
+        r'spotify:playlist:([a-zA-Z0-9]+)',  # spotify:playlist:ID
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    
+    return None
+
 def create_spotify_playlist(playlist_name: str, song_infos: List[Dict], existing_playlist_id: Optional[str] = None) -> Dict:
     """Create a new playlist or add to existing playlist."""
     sp = get_spotify_client()

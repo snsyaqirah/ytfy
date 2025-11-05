@@ -3,10 +3,19 @@ import requests
 from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
 import re
+from typing import List, Dict, Optional
+from flask import session
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
+import json
 
 load_dotenv()
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+YOUTUBE_CLIENT_ID = os.getenv("YOUTUBE_CLIENT_ID")
+YOUTUBE_CLIENT_SECRET = os.getenv("YOUTUBE_CLIENT_SECRET")
+YOUTUBE_REDIRECT_URI = os.getenv("YOUTUBE_REDIRECT_URI", "http://127.0.0.1:5000/youtube_callback")
 
 def extract_playlist_id(url):
     parsed = urlparse(url)
@@ -163,3 +172,214 @@ def get_youtube_songs(playlist_url):
     """Legacy function for backward compatibility"""
     info = get_playlist_info(playlist_url)
     return info["songs"]
+
+# ============================================
+# YouTube OAuth & Playlist Creation Functions
+# ============================================
+
+def get_youtube_oauth_flow():
+    """Create YouTube OAuth flow"""
+    client_config = {
+        "web": {
+            "client_id": YOUTUBE_CLIENT_ID,
+            "client_secret": YOUTUBE_CLIENT_SECRET,
+            "redirect_uris": [YOUTUBE_REDIRECT_URI],
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+        }
+    }
+    
+    flow = Flow.from_client_config(
+        client_config,
+        scopes=['https://www.googleapis.com/auth/youtube.force-ssl'],
+        redirect_uri=YOUTUBE_REDIRECT_URI
+    )
+    return flow
+
+def get_youtube_client():
+    """Get authenticated YouTube client from session"""
+    if 'youtube_token' not in session:
+        return None
+    
+    credentials = Credentials(**session['youtube_token'])
+    youtube = build('youtube', 'v3', credentials=credentials)
+    return youtube
+
+def search_youtube_video(query: str, max_results: int = 5) -> Optional[Dict]:
+    """Search for a video on YouTube and return the best match video ID and title"""
+    try:
+        # Use simple API key search (no auth needed for searching)
+        base_url = "https://www.googleapis.com/youtube/v3/search"
+        params = {
+            "part": "snippet",
+            "q": query,
+            "type": "video",
+            "maxResults": max_results,
+            "key": YOUTUBE_API_KEY,
+            "videoCategoryId": "10"  # Music category
+        }
+        
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("items") and len(data["items"]) > 0:
+            first_result = data["items"][0]
+            # Return both video ID and title for better tracking
+            return {
+                'video_id': first_result["id"]["videoId"],
+                'title': first_result["snippet"]["title"],
+                'channel': first_result["snippet"]["channelTitle"]
+            }
+        
+        print(f"No YouTube results found for: {query}")
+        return None
+    except Exception as e:
+        print(f"Error searching YouTube for '{query}': {str(e)}")
+        if hasattr(e, 'response'):
+            print(f"API Response: {e.response.text if hasattr(e.response, 'text') else 'No response text'}")
+        return None
+
+def create_youtube_playlist(playlist_name: str, songs: List[Dict], existing_playlist_id: Optional[str] = None) -> Dict:
+    """Create a YouTube playlist or add to existing one"""
+    youtube = get_youtube_client()
+    
+    if not youtube:
+        raise Exception("Not authenticated with YouTube. Please connect your YouTube account.")
+    
+    # Create new playlist or use existing
+    if existing_playlist_id:
+        playlist_id = existing_playlist_id
+        # Get playlist details
+        playlist_response = youtube.playlists().list(
+            part="snippet",
+            id=playlist_id
+        ).execute()
+        playlist_name = playlist_response["items"][0]["snippet"]["title"]
+        is_new = False
+    else:
+        # Create new playlist
+        playlist_request = youtube.playlists().insert(
+            part="snippet,status",
+            body={
+                "snippet": {
+                    "title": playlist_name,
+                    "description": "Playlist imported from Spotify using YTfy"
+                },
+                "status": {
+                    "privacyStatus": "private"  # Can be: private, public, unlisted
+                }
+            }
+        ).execute()
+        playlist_id = playlist_request["id"]
+        is_new = True
+    
+    print(f"Working with playlist ID: {playlist_id}")
+    
+    # Search and add videos
+    matched_songs = []
+    unmatched_songs = []
+    
+    for idx, song in enumerate(songs):
+        artist = song.get('artist', '')
+        track_name = song.get('track_name', '')
+        
+        # Create search query - prioritize official tracks
+        if artist and track_name:
+            search_query = f"{artist} {track_name} official"
+        else:
+            search_query = track_name or artist or str(song)
+        
+        print(f"[{idx+1}/{len(songs)}] Searching: {search_query}")
+        
+        # Search for video
+        video_result = search_youtube_video(search_query)
+        
+        if video_result and video_result.get('video_id'):
+            video_id = video_result['video_id']
+            video_title = video_result.get('title', 'Unknown')
+            
+            try:
+                # Add video to playlist
+                youtube.playlistItems().insert(
+                    part="snippet",
+                    body={
+                        "snippet": {
+                            "playlistId": playlist_id,
+                            "resourceId": {
+                                "kind": "youtube#video",
+                                "videoId": video_id
+                            }
+                        }
+                    }
+                ).execute()
+                
+                print(f"✓ Added: {video_title}")
+                
+                matched_songs.append({
+                    'spotify_track': f"{artist} - {track_name}" if artist else track_name,
+                    'youtube_title': video_title,
+                    'video_id': video_id,
+                    'youtube_url': f"https://www.youtube.com/watch?v={video_id}"
+                })
+            except Exception as e:
+                error_msg = str(e)
+                print(f"✗ Error adding {video_id}: {error_msg}")
+                unmatched_songs.append({
+                    'title': f"{artist} - {track_name}" if artist else track_name,
+                    'reason': f'Found but failed to add: {error_msg}'
+                })
+        else:
+            print(f"✗ No video found for: {search_query}")
+            unmatched_songs.append({
+                'title': f"{artist} - {track_name}" if artist else track_name,
+                'reason': 'No video found on YouTube'
+            })
+    
+    playlist_url = f"https://www.youtube.com/playlist?list={playlist_id}"
+    
+    print(f"\n✓ Playlist complete: {len(matched_songs)} matched, {len(unmatched_songs)} unmatched")
+    
+    return {
+        'playlist_url': playlist_url,
+        'playlist_id': playlist_id,
+        'playlist_name': playlist_name,
+        'matched_songs': matched_songs,
+        'unmatched_songs': unmatched_songs,
+        'total_songs': len(songs),
+        'matched_count': len(matched_songs),
+        'unmatched_count': len(unmatched_songs),
+        'is_new': is_new
+    }
+
+def get_user_youtube_playlists():
+    """Get user's YouTube playlists"""
+    youtube = get_youtube_client()
+    
+    if not youtube:
+        return []
+    
+    try:
+        playlists = []
+        request = youtube.playlists().list(
+            part="snippet,contentDetails",
+            mine=True,
+            maxResults=50
+        )
+        
+        while request:
+            response = request.execute()
+            
+            for item in response.get("items", []):
+                playlists.append({
+                    'id': item['id'],
+                    'name': item['snippet']['title'],
+                    'tracks_total': item['contentDetails']['itemCount']
+                })
+            
+            request = youtube.playlists().list_next(request, response)
+        
+        return playlists
+    except Exception as e:
+        print(f"Error fetching YouTube playlists: {str(e)}")
+        return []

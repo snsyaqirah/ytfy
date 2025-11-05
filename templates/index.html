@@ -27,29 +27,57 @@
                     <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
                         🎵 YTFY
                     </h1>
-                    <p class="text-gray-400 text-sm sm:text-base">Convert YouTube/YouTube Music Playlists to Spotify</p>
+                    <p class="text-gray-400 text-sm sm:text-base">Bidirectional Playlist Converter</p>
                 </div>
 
-                {% if not authenticated %}
-                <!-- Not Authenticated - Show Login -->
-                <div class="text-center space-y-6">
-                    <div class="bg-spotify/10 border-2 border-spotify/50 rounded-lg p-6">
-                        <p class="text-white mb-4 text-sm sm:text-base">Connect your Spotify account to get started</p>
-                        <a href="{{ url_for('spotify_auth') }}" class="inline-block bg-spotify hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm sm:text-base">
-                            🎧 Connect Spotify
+                <!-- Conversion Direction Toggle -->
+                <div class="mb-4">
+                    <div class="bg-white/5 rounded-xl p-1 inline-flex w-full">
+                        <button type="button" onclick="switchConversionMode('yt-to-spotify')" id="yt-to-spotify-btn" class="flex-1 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-all bg-spotify text-white">
+                            YouTube → Spotify
+                        </button>
+                        <button type="button" onclick="switchConversionMode('spotify-to-yt')" id="spotify-to-yt-btn" class="flex-1 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-all text-gray-400 hover:text-white">
+                            Spotify → YouTube
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Compact Auth Status Under Toggle -->
+                <div class="mb-6 space-y-2">
+                    <!-- Spotify Auth Status -->
+                    <div class="flex items-center justify-between text-xs sm:text-sm">
+                        {% if spotify_authenticated %}
+                        <span class="text-green-400">✓ Spotify Connected</span>
+                        <a href="{{ url_for('logout') }}" class="text-gray-400 hover:text-white">Disconnect</a>
+                        {% else %}
+                        <span class="text-gray-400">○ Spotify Not Connected</span>
+                        <a href="{{ url_for('spotify_auth') }}" class="text-spotify hover:text-green-400">Connect</a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- YouTube Auth Status -->
+                    <div class="flex items-center justify-between text-xs sm:text-sm">
+                        {% if youtube_authenticated %}
+                        <span class="text-red-400">✓ YouTube Connected</span>
+                        <a href="{{ url_for('youtube_logout') }}" class="text-gray-400 hover:text-white">Disconnect</a>
+                        {% else %}
+                        <span class="text-gray-400">○ YouTube Not Connected</span>
+                        <a href="{{ url_for('youtube_auth') }}" class="text-red-600 hover:text-red-400">Connect</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- YouTube to Spotify Form -->
+                <form action="{{ url_for('convert') }}" method="POST" id="ytToSpotifyForm" class="space-y-4 sm:space-y-6">
+                    {% if not spotify_authenticated %}
+                    <!-- Spotify Auth Required Notice -->
+                    <div class="bg-spotify/10 border-2 border-spotify/50 rounded-lg p-4 text-center">
+                        <p class="text-white mb-3 text-sm sm:text-base">🎧 Connect Spotify to create playlists</p>
+                        <a href="{{ url_for('spotify_auth') }}" class="inline-block bg-spotify hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm">
+                            Connect Spotify Account
                         </a>
                     </div>
-                    <p class="text-gray-400 text-xs sm:text-sm">We'll need access to create/modify playlists on your behalf</p>
-                </div>
-                {% else %}
-                <!-- Authenticated - Show Form -->
-                <div class="mb-4 bg-green-500/10 border border-green-500/50 rounded-lg p-3 flex items-center justify-between">
-                    <span class="text-green-400 text-xs sm:text-sm">✓ Connected to Spotify</span>
-                    <a href="{{ url_for('logout') }}" class="text-gray-400 hover:text-white text-xs">Disconnect</a>
-                </div>
-
-                <!-- Form -->
-                <form action="{{ url_for('convert') }}" method="POST" id="convertForm" class="space-y-4 sm:space-y-6">
+                    {% else %}
                     <!-- YouTube URL Input -->
                     <div>
                         <label class="block text-white text-sm font-medium mb-2">YouTube/YouTube Music Playlist URL</label>
@@ -110,8 +138,96 @@
                         class="w-full bg-spotify hover:bg-green-500 text-white font-bold py-3 sm:py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm sm:text-base">
                         🎧 Convert to Spotify
                     </button>
+                    {% endif %}
                 </form>
-                {% endif %}
+
+                <!-- Spotify to YouTube Form -->
+                <form action="{{ url_for('convert_reverse') }}" method="POST" id="spotifyToYtForm" class="space-y-4 sm:space-y-6" style="display: none;">
+                    <!-- Check Both Auth Requirements -->
+                    {% if not spotify_authenticated or not youtube_authenticated %}
+                    <div class="space-y-3">
+                        {% if not spotify_authenticated %}
+                        <div class="bg-spotify/10 border-2 border-spotify/50 rounded-lg p-4 text-center">
+                            <p class="text-white mb-3 text-sm">🎧 Connect Spotify to read playlists</p>
+                            <a href="{{ url_for('spotify_auth') }}" class="inline-block bg-spotify hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-xs sm:text-sm">
+                                Connect Spotify
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if not youtube_authenticated %}
+                        <div class="bg-red-500/10 border-2 border-red-500/50 rounded-lg p-4 text-center">
+                            <p class="text-white mb-3 text-sm">📺 Connect YouTube to create playlists</p>
+                            <a href="{{ url_for('youtube_auth') }}" class="inline-block bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-xs sm:text-sm">
+                                Connect YouTube
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    
+                    <!-- Spotify URL Input -->
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-2">Spotify Playlist URL</label>
+                        <input 
+                            type="text" 
+                            name="playlist_url" 
+                            placeholder="https://open.spotify.com/playlist/..." 
+                            required
+                            class="w-full px-4 py-3 rounded-lg bg-white text-dark placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 transition text-sm sm:text-base">
+                    </div>
+
+                    <!-- Playlist Options -->
+                    <div>
+                        <label class="block text-white text-sm font-medium mb-3">Choose Option</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition">
+                                <input type="radio" name="playlist_option" value="new" checked onchange="togglePlaylistInputReverse()" class="w-4 h-4 text-red-600 focus:ring-red-600">
+                                <span class="ml-3 text-white text-sm sm:text-base">Create New Playlist</span>
+                            </label>
+                            <label class="flex items-center p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition">
+                                <input type="radio" name="playlist_option" value="existing" onchange="togglePlaylistInputReverse()" class="w-4 h-4 text-red-600 focus:ring-red-600">
+                                <span class="ml-3 text-white text-sm sm:text-base">Add to Existing Playlist</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- New Playlist Input -->
+                    <div id="newPlaylistInputReverse" class="space-y-2">
+                        <label class="block text-white text-sm font-medium">Playlist Name (Optional)</label>
+                        <input 
+                            type="text" 
+                            name="playlist_name" 
+                            placeholder="Leave blank to use Spotify title"
+                            class="w-full px-4 py-3 rounded-lg bg-white text-dark placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 transition text-sm sm:text-base">
+                        <p class="text-gray-400 text-xs sm:text-sm">Leave blank to use the Spotify playlist title</p>
+                    </div>
+
+                    <!-- Existing YouTube Playlist Select -->
+                    <div id="existingPlaylistInputReverse" class="space-y-2" style="display: none;">
+                        {% if youtube_playlists %}
+                        <label class="block text-white text-sm font-medium">Select YouTube Playlist</label>
+                        <select 
+                            name="existing_playlist"
+                            class="w-full px-4 py-3 rounded-lg bg-white text-dark focus:outline-none focus:ring-2 focus:ring-red-600 transition text-sm sm:text-base">
+                            <option value="">Select a playlist...</option>
+                            {% for playlist in youtube_playlists %}
+                            <option value="{{ playlist.id }}">{{ playlist.name }} ({{ playlist.tracks_total }} tracks)</option>
+                            {% endfor %}
+                        </select>
+                        {% else %}
+                        <p class="text-gray-400 text-xs sm:text-sm">No YouTube playlists found. Create new one instead.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit"
+                        class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 sm:py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm sm:text-base">
+                        📺 Convert to YouTube
+                    </button>
+                    {% endif %}
+                </form>
 
                 <!-- Footer -->
                 <div class="mt-6 sm:mt-8 pt-6 border-t border-gray-700 text-center space-y-2">
@@ -127,18 +243,63 @@
             function togglePlaylistInput() {
                 const newPlaylistInput = document.getElementById('newPlaylistInput');
                 const existingPlaylistInput = document.getElementById('existingPlaylistInput');
-                const selectedOption = document.querySelector('input[name="playlist_option"]:checked').value;
+                const selectedOption = document.querySelector('#ytToSpotifyForm input[name="playlist_option"]:checked').value;
                 
                 if (selectedOption === 'new') {
                     newPlaylistInput.style.display = 'block';
                     existingPlaylistInput.style.display = 'none';
-                    const selectElement = document.querySelector('select[name="existing_playlist"]');
+                    const selectElement = document.querySelector('#ytToSpotifyForm select[name="existing_playlist"]');
                     if (selectElement) selectElement.removeAttribute('required');
                 } else {
                     newPlaylistInput.style.display = 'none';
                     existingPlaylistInput.style.display = 'block';
-                    const selectElement = document.querySelector('select[name="existing_playlist"]');
+                    const selectElement = document.querySelector('#ytToSpotifyForm select[name="existing_playlist"]');
                     if (selectElement) selectElement.setAttribute('required', 'required');
+                }
+            }
+
+            function togglePlaylistInputReverse() {
+                const newPlaylistInput = document.getElementById('newPlaylistInputReverse');
+                const existingPlaylistInput = document.getElementById('existingPlaylistInputReverse');
+                const selectedOption = document.querySelector('#spotifyToYtForm input[name="playlist_option"]:checked').value;
+                
+                if (selectedOption === 'new') {
+                    newPlaylistInput.style.display = 'block';
+                    existingPlaylistInput.style.display = 'none';
+                    const selectElement = document.querySelector('#spotifyToYtForm select[name="existing_playlist"]');
+                    if (selectElement) selectElement.removeAttribute('required');
+                } else {
+                    newPlaylistInput.style.display = 'none';
+                    existingPlaylistInput.style.display = 'block';
+                    const selectElement = document.querySelector('#spotifyToYtForm select[name="existing_playlist"]');
+                    if (selectElement) selectElement.setAttribute('required', 'required');
+                }
+            }
+
+            function switchConversionMode(mode) {
+                const ytToSpotifyBtn = document.getElementById('yt-to-spotify-btn');
+                const spotifyToYtBtn = document.getElementById('spotify-to-yt-btn');
+                const ytToSpotifyForm = document.getElementById('ytToSpotifyForm');
+                const spotifyToYtForm = document.getElementById('spotifyToYtForm');
+
+                if (mode === 'yt-to-spotify') {
+                    // Switch to YouTube → Spotify
+                    ytToSpotifyBtn.classList.add('bg-spotify', 'text-white');
+                    ytToSpotifyBtn.classList.remove('text-gray-400');
+                    spotifyToYtBtn.classList.remove('bg-red-600', 'text-white');
+                    spotifyToYtBtn.classList.add('text-gray-400');
+                    
+                    ytToSpotifyForm.style.display = 'block';
+                    spotifyToYtForm.style.display = 'none';
+                } else {
+                    // Switch to Spotify → YouTube
+                    spotifyToYtBtn.classList.add('bg-red-600', 'text-white');
+                    spotifyToYtBtn.classList.remove('text-gray-400');
+                    ytToSpotifyBtn.classList.remove('bg-spotify', 'text-white');
+                    ytToSpotifyBtn.classList.add('text-gray-400');
+                    
+                    ytToSpotifyForm.style.display = 'none';
+                    spotifyToYtForm.style.display = 'block';
                 }
             }
         </script>
