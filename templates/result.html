@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Conversion Success - YTFY</title>
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='ytfy.png') }}">
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
             tailwind.config = {
@@ -113,7 +114,11 @@
                         © 2025 Crafted when I was *definitely* supposed to be working 💻 by 
                         <a href="https://snsyaqirah.github.io/syaqi/" target="_blank" class="text-spotify hover:text-green-400 transition font-medium">Syaqi</a>
                     </p>
-                    <a href="{{ url_for('privacy') }}" class="inline-block text-gray-400 hover:text-white transition text-xs sm:text-sm">Privacy Policy</a>
+                    <div class="flex items-center justify-center gap-3 text-xs sm:text-sm">
+                        <a href="{{ url_for('privacy') }}" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
+                        <span class="text-gray-600">•</span>
+                        <a href="{{ url_for('terms') }}" class="text-gray-400 hover:text-white transition">Terms of Service</a>
+                    </div>
                 </div>
             </div>
         </div>

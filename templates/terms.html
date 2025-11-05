@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Terms of Service - YTfy</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='ytfy.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .terms-content {
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .terms-content h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .terms-content h2 {
+            color: var(--primary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .terms-content h3 {
+            color: var(--light-color);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .terms-content ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        .terms-content li {
+            margin-bottom: 0.5rem;
+        }
+        .terms-content a {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        .terms-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .terms-summary {
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            background-color: rgba(29, 185, 84, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="terms-content">
+            <h1>Terms of Service for YTfy</h1>
+            <p><strong>Last Updated:</strong> {{ last_updated }}</p>
+            
+            <div class="terms-summary">
+                <strong>Simple Summary:</strong> YTfy is a free tool. Use it responsibly. We're not responsible if something breaks. Don't abuse the service. That's basically it! 🎵
+            </div>
+
+            <h2>1. Acceptance of Terms</h2>
+            <p>By accessing and using YTfy ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these terms, please do not use the Service.</p>
+
+            <h2>2. Description of Service</h2>
+            <p>YTfy is a free web-based tool that converts playlists between YouTube and Spotify. The Service:</p>
+            <ul>
+                <li>Allows users to convert YouTube playlists to Spotify playlists</li>
+                <li>Allows users to convert Spotify playlists to YouTube playlists</li>
+                <li>Requires authentication with Spotify and/or YouTube accounts</li>
+                <li>Operates within the limits of YouTube and Spotify APIs</li>
+            </ul>
+
+            <h2>3. User Responsibilities</h2>
+            <p>You agree to:</p>
+            <ul>
+                <li>✅ Use the Service for personal, non-commercial purposes only</li>
+                <li>✅ Comply with YouTube's Terms of Service and Spotify's Terms of Service</li>
+                <li>✅ Not abuse or overload the Service with excessive requests</li>
+                <li>✅ Not use the Service for any illegal or unauthorized purpose</li>
+                <li>✅ Respect copyright and intellectual property rights</li>
+                <li>✅ Not attempt to reverse engineer, hack, or compromise the Service</li>
+            </ul>
+
+            <h2>4. API Limitations</h2>
+            <p>The Service operates within the constraints of third-party APIs:</p>
+            <ul>
+                <li><strong>YouTube API Quota:</strong> 10,000 units per day (~66 song conversions)</li>
+                <li><strong>Rate Limits:</strong> The Service may limit conversions to prevent quota exhaustion</li>
+                <li><strong>Service Availability:</strong> The Service depends on YouTube and Spotify API availability</li>
+            </ul>
+            <p>If API quotas are reached, the Service may be temporarily unavailable until quotas reset (typically at midnight PST).</p>
+
+            <h2>5. Account Authentication</h2>
+            <p>To use certain features, you must:</p>
+            <ul>
+                <li>Authenticate with your Spotify account (for creating Spotify playlists)</li>
+                <li>Authenticate with your YouTube account (for creating YouTube playlists)</li>
+                <li>Grant the necessary permissions for playlist management</li>
+            </ul>
+            <p>You can revoke access at any time through:</p>
+            <ul>
+                <li><a href="https://www.spotify.com/account/apps/" target="_blank">Spotify Account Settings</a></li>
+                <li><a href="https://myaccount.google.com/permissions" target="_blank">Google Account Permissions</a></li>
+            </ul>
+
+            <h2>6. Disclaimer of Warranties</h2>
+            <p>The Service is provided "AS IS" and "AS AVAILABLE" without warranties of any kind, either express or implied, including but not limited to:</p>
+            <ul>
+                <li>❌ No guarantee of 100% song matching accuracy</li>
+                <li>❌ No guarantee of uninterrupted service availability</li>
+                <li>❌ No warranty regarding data accuracy or completeness</li>
+                <li>❌ No guarantee that the Service will meet your requirements</li>
+            </ul>
+
+            <h2>7. Limitation of Liability</h2>
+            <p>To the fullest extent permitted by law, YTfy and its creators shall not be liable for:</p>
+            <ul>
+                <li>Any indirect, incidental, special, consequential, or punitive damages</li>
+                <li>Loss of playlists, songs, or data</li>
+                <li>Service interruptions or API quota limitations</li>
+                <li>Issues arising from third-party services (YouTube, Spotify)</li>
+                <li>Any damages resulting from your use or inability to use the Service</li>
+            </ul>
+
+            <h2>8. Content and Copyright</h2>
+            <p>You acknowledge that:</p>
+            <ul>
+                <li>You are responsible for the content of playlists you convert</li>
+                <li>YTfy does not host, store, or distribute any music content</li>
+                <li>All music content remains on YouTube and Spotify platforms</li>
+                <li>You must respect copyright laws and content creators' rights</li>
+                <li>YTfy is not responsible for copyright infringement by users</li>
+            </ul>
+
+            <h2>9. Third-Party Services</h2>
+            <p>The Service integrates with third-party platforms:</p>
+            <ul>
+                <li><strong>YouTube/Google:</strong> Subject to <a href="https://www.youtube.com/t/terms" target="_blank">YouTube Terms of Service</a> and <a href="https://policies.google.com/terms" target="_blank">Google Terms of Service</a></li>
+                <li><strong>Spotify:</strong> Subject to <a href="https://www.spotify.com/legal/end-user-agreement/" target="_blank">Spotify Terms and Conditions</a></li>
+            </ul>
+            <p>Your use of the Service constitutes agreement to these third-party terms.</p>
+
+            <h2>10. Data and Privacy</h2>
+            <p>Your privacy is important to us. Please review our <a href="{{ url_for('privacy') }}">Privacy Policy</a> to understand how we handle your data.</p>
+            <p>Key points:</p>
+            <ul>
+                <li>We do not store your playlists or account information</li>
+                <li>All processing happens in real-time</li>
+                <li>Session data is temporary and automatically deleted</li>
+            </ul>
+
+            <h2>11. Service Modifications</h2>
+            <p>We reserve the right to:</p>
+            <ul>
+                <li>Modify or discontinue the Service at any time</li>
+                <li>Change features, functionality, or APIs</li>
+                <li>Implement usage limits or restrictions</li>
+                <li>Update these Terms of Service</li>
+            </ul>
+            <p>Continued use of the Service after changes constitutes acceptance of modified terms.</p>
+
+            <h2>12. Termination</h2>
+            <p>We may terminate or suspend access to the Service immediately, without prior notice, for:</p>
+            <ul>
+                <li>Violation of these Terms of Service</li>
+                <li>Abuse or misuse of the Service</li>
+                <li>Fraudulent, illegal, or harmful activities</li>
+                <li>Excessive API usage that affects other users</li>
+            </ul>
+
+            <h2>13. Indemnification</h2>
+            <p>You agree to indemnify and hold harmless YTfy and its creators from any claims, damages, losses, or expenses arising from:</p>
+            <ul>
+                <li>Your use of the Service</li>
+                <li>Your violation of these Terms</li>
+                <li>Your violation of any third-party rights</li>
+                <li>Content you create or convert through the Service</li>
+            </ul>
+
+            <h2>14. No Commercial Use</h2>
+            <p>The Service is provided for personal use only. You may not:</p>
+            <ul>
+                <li>Use the Service for commercial purposes without permission</li>
+                <li>Resell or redistribute the Service</li>
+                <li>Incorporate the Service into a commercial product</li>
+                <li>Use the Service to generate revenue</li>
+            </ul>
+
+            <h2>15. Age Restrictions</h2>
+            <p>You must be at least 13 years old to use this Service. By using the Service, you represent that you meet this age requirement and comply with Spotify and YouTube's age restrictions.</p>
+
+            <h2>16. Governing Law</h2>
+            <p>These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction], without regard to its conflict of law provisions.</p>
+
+            <h2>17. Contact Information</h2>
+            <p>For questions about these Terms of Service, please contact:</p>
+            <p><strong>Email:</strong> snsyaqirah@gmail.com</p>
+
+            <h2>18. Severability</h2>
+            <p>If any provision of these Terms is found to be unenforceable or invalid, that provision will be limited or eliminated to the minimum extent necessary so that the Terms will otherwise remain in full force and effect.</p>
+
+            <h2>19. Entire Agreement</h2>
+            <p>These Terms of Service, together with our Privacy Policy, constitute the entire agreement between you and YTfy regarding the Service.</p>
+
+            <div class="terms-summary">
+                <strong>Remember:</strong> Be cool, don't abuse the service, and enjoy converting your playlists! If you have questions, just reach out. We're here to help! 🎧📺
+            </div>
+            
+            <!-- Footer Links -->
+            <div class="mt-8 pt-6 border-t border-gray-700 text-center space-y-2">
+                <p class="text-gray-400 text-xs sm:text-sm">
+                    © 2025 Crafted when I was *definitely* supposed to be working 💻 by 
+                    <a href="https://snsyaqirah.github.io/syaqi/" target="_blank" class="text-spotify hover:text-green-400 transition font-medium">Syaqi</a>
+                </p>
+                <div class="flex items-center justify-center gap-3 text-xs sm:text-sm">
+                    <a href="{{ url_for('index') }}" class="text-gray-400 hover:text-white transition">Back to Home</a>
+                    <span class="text-gray-600">•</span>
+                    <a href="{{ url_for('privacy') }}" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

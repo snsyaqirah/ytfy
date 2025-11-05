@@ -86,8 +86,18 @@ def spotify_auth():
 
 @app.route('/logout')
 def logout():
-    """Clear session and logout"""
-    session.clear()
+    """Clear Spotify session only"""
+    # Remove Spotify cache file
+    sp = get_spotify_client()
+    cache_handler = sp.auth_manager.cache_handler
+    if hasattr(cache_handler, 'get_cached_token'):
+        cache_handler.save_token_to_cache(None)
+    
+    # Only remove Spotify-related session keys, keep YouTube
+    keys_to_remove = [k for k in session.keys() if not k.startswith('youtube')]
+    for key in keys_to_remove:
+        session.pop(key, None)
+    
     return redirect(url_for('index'))
 
 @app.route('/callback')
@@ -103,6 +113,10 @@ def callback():
 @app.route('/privacy')
 def privacy():
     return render_template('privacy.html', last_updated=datetime.now().strftime("%B %d, %Y"))
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html', last_updated=datetime.now().strftime("%B %d, %Y"))
 
 @app.route("/convert_reverse", methods=["POST"])
 def convert_reverse():
